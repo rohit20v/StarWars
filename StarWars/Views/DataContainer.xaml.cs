@@ -262,7 +262,15 @@ namespace StarWars.Views
 
         private void SaveXml(object sender, RoutedEventArgs e)
         {
-            throw new NotImplementedException();
+            if (_dataType.Equals("people"))
+            {
+                XmlWriter.WriteXmlFile<Character>(_people, "characters.xml");
+            }
+            else if (_dataType.Equals("planets"))
+            {
+                XmlWriter.WriteXmlFile<Planet>(_planets, "planets.xml");
+
+            }
         }
 
         private void SaveJson(object sender, RoutedEventArgs e)
