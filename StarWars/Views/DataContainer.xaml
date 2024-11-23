@@ -57,44 +57,106 @@
 
                     <Border BorderThickness="1" BorderBrush="#FFD700" Margin="0 10" />
                     <Button Content="View Vehicles"
-                            Background="Gray"
                             Foreground="White"
+                            HorizontalAlignment="Center"
+                            CornerRadius="8"
+                            Background="#FF8F7700"
                             Margin="0 10 0 0"
                             Click="ShowVehiclesButton_Click"
                             Tag="{Binding}" />
 
                     <Button Content="View Starships"
-                            Background="Gray"
+                            HorizontalAlignment="Center"
+                            CornerRadius="8"
+                            Background="#FF8F7700"
                             Foreground="White"
                             Margin="0 10 0 0"
-                            Click="ShowStarshipsButton_Click" />
+                            Click="ShowStarshipsButton_Click"
+                            Tag="{Binding}" />
 
                 </StackPanel>
             </Border>
         </DataTemplate>
 
-
         <DataTemplate x:Key="PlanetTemplate">
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-                <TextBlock Margin="8" Padding="8" Text="{Binding Name}" />
-                <TextBlock Margin="8" Padding="8" Text="{Binding Gravity}" />
-                <TextBlock Margin="8" Padding="8" Text="{Binding Terrain}" />
-                <TextBlock Margin="8" Padding="8" Text="{Binding SurfaceWater}" TextWrapping="Wrap" />
-                <TextBlock Margin="8" Padding="8" Text="{Binding Population}" TextWrapping="Wrap" />
-            </StackPanel>
+            <Border BorderThickness="2" BorderBrush="#FFD700" CornerRadius="8" Padding="16" Margin="10"
+                    Background="#101010">
+                <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Spacing="10">
+                    <TextBlock FontWeight="Bold" FontSize="20" Margin="0 0 0 8" Foreground="White"
+                               Text="{Binding Name}" />
+
+                    <Grid Margin="0 10 0 0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Row="0" Grid.Column="0" Text="Gravity:" FontWeight="SemiBold"
+                                   Foreground="#FFD700" Margin="0 4 8 4" />
+                        <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Gravity}" Foreground="White"
+                                   Margin="0 4 0 4" />
+
+                        <TextBlock Grid.Row="1" Grid.Column="0" Text="Terrain:" FontWeight="SemiBold"
+                                   Foreground="#FFD700" Margin="0 4 8 4" />
+                        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Terrain}" Foreground="White"
+                                   Margin="0 4 0 4" />
+
+                        <TextBlock Grid.Row="2" Grid.Column="0" Text="Surface Water:" FontWeight="SemiBold"
+                                   Foreground="#FFD700" Margin="0 4 8 4" />
+                        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Surface_Water}" Foreground="White"
+                                   Margin="0 4 0 4" />
+
+                        <TextBlock Grid.Row="3" Grid.Column="0" Text="Population:" FontWeight="SemiBold"
+                                   Foreground="#FFD700" Margin="0 4 8 4" />
+                        <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Population}" Foreground="White"
+                                   Margin="0 4 0 4" />
+                    </Grid>
+
+                    <Border BorderThickness="1" BorderBrush="#FFD700" Margin="0 10" />
+
+                </StackPanel>
+            </Border>
         </DataTemplate>
+
     </Page.Resources>
     <StackPanel HorizontalAlignment="Center" Padding="8" Margin="16">
 
-        <TextBox x:Name="searchBox" HorizontalAlignment="Center" Width="300" Height="45"
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="10">
+            <Button Content="Previous"
+                    x:Name="Prev"
+                    Click="PreviousPageButton_Click"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Foreground="White"
+                    Background="#FF8F7700"
+                    Margin="10"
+                    CornerRadius="8" />
+            <Button Content="Next"
+                    x:Name="Next"
+                    Click="NextPageButton_Click"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Foreground="White"
+                    Background="#FF8F7700"
+                    Margin="10"
+                    CornerRadius="8" />
+        </StackPanel>
+
+        <TextBox x:Name="SearchBox" HorizontalAlignment="Center" Width="300" Height="45"
                  Background="#333333" Foreground="White" FontSize="16" FontWeight="SemiBold" BorderBrush="Yellow"
                  BorderThickness="2" Padding="10" Margin="10" PlaceholderText="Search the Star Wars galaxy..."
-                 TextAlignment="Center" CornerRadius="8" />
-        <StackPanel x:Name="Content">
-            <ScrollViewer>
-                <ListView Height="400" x:Name="DataList" HorizontalAlignment="Stretch" />
+                 TextAlignment="Center" CornerRadius="8" TextChanged="SearchBox_TextChanged" />
 
-            </ScrollViewer>
-        </StackPanel>
+
+        <ListView Height="300" x:Name="DataList" HorizontalAlignment="Center" />
+
+
     </StackPanel>
 </Page>

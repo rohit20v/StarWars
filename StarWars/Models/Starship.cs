@@ -11,7 +11,7 @@ namespace StarWars.Models
         public string Name { get; set; }
         public string Model { get; set; }
         public string Manufacturer { get; set; }
-        public double MaxAtmospheringSpeed { get; set; }
+        public string Max_Atmosphering_Speed { get; set; }
         public string StarshipClass { get; set; }
     }
 }

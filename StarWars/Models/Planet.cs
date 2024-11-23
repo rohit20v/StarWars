@@ -11,7 +11,7 @@ namespace StarWars.Models
         public string Name { get; set; }
         public string Gravity { get; set; }
         public string Terrain { get; set; }
-        public string SurfaceWater { get; set; }
+        public string Surface_Water { get; set; }
         public string Population { get; set; }
     }
 }

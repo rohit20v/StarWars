@@ -14,7 +14,24 @@ namespace StarWars.Utils
     {
         private static HttpClient _httpClient = new();
 
-        public static List<T> FetchApi<T>(string url)
+        //public static List<T> FetchApi<T>(string url)
+        //{
+        //    ApiResponse<T> response = null;
+        //    try
+        //    {
+        //        response = _httpClient.GetFromJsonAsync<ApiResponse<T>>(url).GetAwaiter().GetResult();
+        //    }
+        //    catch (Exception e)
+        //    {
+        //        Debug.WriteLine(e.Message);
+        //    }
+
+
+        //    if (response != null) return response.Results;
+        //    return [];
+        //}
+
+        public static ApiResponse<T> FetchApi<T>(string url)
         {
             ApiResponse<T> response = null;
             try
@@ -27,8 +44,7 @@ namespace StarWars.Utils
             }
 
 
-            if (response != null) return response.Results;
-            return [];
+            return response;
         }
 
         public static async Task<T> FetchSingleItemAsync<T>(string url)
@@ -43,6 +59,5 @@ namespace StarWars.Utils
                 return default;
             }
         }
-
     }
 }

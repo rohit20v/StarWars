@@ -10,14 +10,13 @@ namespace StarWars.Models
     public class Character
     {
         public string Name { get; set; }
-        public double Height { get; set; }
-        public double Mass { get; set; }
+        public string Height { get; set; }
+        public string Mass { get; set; }
         public string Skin_Color { get; set; }
         public string Birth_Year { get; set; }
         public string Gender { get; set; }
         [JsonPropertyName("vehicles")] public List<string> VehiclesDataUrl { get; set; }
         [JsonPropertyName("starships")] public List<string> StarshipsDataUrl { get; set; }
-        public List<Vehicle> VehiclesData { get; set; } = [];
-        public List<Starship> StarshipsData { get; set; } = [];
+       
     }
 }

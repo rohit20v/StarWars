@@ -19,6 +19,7 @@ using StarWars.Utils;
 using System.Threading.Tasks;
 using Windows.UI.Text;
 using Windows.UI;
+using System.Runtime.InteropServices;
 
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=234238
 
@@ -30,6 +31,8 @@ namespace StarWars.Views
     public sealed partial class DataContainer : Page
     {
         private string _dataType;
+        private ApiResponse<Character> _characterResponse = new();
+        private ApiResponse<Planet> _planetResponse = new();
         private List<Character> _people = [];
         private List<Planet> _planets = [];
 
@@ -50,22 +53,63 @@ namespace StarWars.Views
             {
                 DataList.ItemTemplate = this.Resources["CharacterTemplate"] as DataTemplate;
 
-                _people = HttpFetch.FetchApi<Character>($"https://swapi.dev/api/{_dataType}");
- 
-                DataList.ItemsSource = _people;
-                Debug.WriteLine(_people[0].VehiclesDataUrl.Count);
+                _characterResponse = HttpFetch.FetchApi<Character>($"https://swapi.dev/api/{_dataType}");
+                FetchCharacterData($"https://swapi.dev/api/{_dataType}");
             }
 
             else
             {
                 DataList.ItemTemplate = this.Resources["PlanetTemplate"] as DataTemplate;
 
-                _planets = HttpFetch.FetchApi<Planet>($"https://swapi.dev/api/{_dataType}");
-                DataList.ItemsSource = _planets;
-                Debug.WriteLine(_planets[0].Name);
+                FetchPlanetData($"https://swapi.dev/api/{_dataType}");
             }
         }
 
+        private void FetchCharacterData(string url)
+        {
+            _characterResponse = HttpFetch.FetchApi<Character>(url);
+            if (_characterResponse != null)
+            {
+                _people = _characterResponse.Results;
+                UpdateNavigationButtons(_characterResponse.Next, _characterResponse.Previous);
+                DataList.ItemsSource = _people;
+            }
+        }
+
+        private void FetchPlanetData(string url)
+        {
+            _planetResponse = HttpFetch.FetchApi<Planet>(url);
+            if (_planetResponse != null)
+            {
+                _planets = _planetResponse.Results;
+                UpdateNavigationButtons(_planetResponse.Next, _planetResponse.Previous);
+
+                DataList.ItemsSource = _planets;
+            }
+        }
+
+        private async void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            string searchText = SearchBox.Text.Trim();
+
+            if (!string.IsNullOrEmpty(searchText))
+            {
+                if (_dataType.Equals("people"))
+                {
+                    string searchUrl = $"https://swapi.dev/api/people/?search={searchText}";
+                    FetchCharacterData(searchUrl);
+                }
+                else if (_dataType.Equals("planets"))
+                {
+                    string searchUrl = $"https://swapi.dev/api/planets/?search={searchText}";
+                    FetchPlanetData(searchUrl);
+                }
+            }
+            else
+            {
+                InitialFetch();
+            }
+        }
 
         private async void ShowVehiclesButton_Click(object sender, RoutedEventArgs e)
         {
@@ -74,13 +118,12 @@ namespace StarWars.Views
 
             if (character != null && character.VehiclesDataUrl != null)
             {
-                // Fetch vehicle data for the selected character
                 var vehicles = new List<Vehicle>();
                 foreach (var url in character.VehiclesDataUrl)
                 {
                     try
                     {
-                        var vehicle = await HttpFetch.FetchSingleItemAsync<Vehicle>(url); // Use async call
+                        var vehicle = await HttpFetch.FetchSingleItemAsync<Vehicle>(url);
                         if (vehicle != null) vehicles.Add(vehicle);
                     }
                     catch (Exception ex)
@@ -89,7 +132,6 @@ namespace StarWars.Views
                     }
                 }
 
-                // Show vehicle data in a popup
                 ShowPopup("Vehicles", vehicles.Select(v => v.Name).ToList());
             }
         }
@@ -101,7 +143,6 @@ namespace StarWars.Views
 
             if (character != null && character.StarshipsDataUrl != null)
             {
-                // Fetch starship data for the selected character
                 var starships = new List<Starship>();
                 foreach (var url in character.StarshipsDataUrl)
                 {
@@ -116,7 +157,6 @@ namespace StarWars.Views
                     }
                 }
 
-                // Show starship data in a popup
                 ShowPopup("Starships", starships.Select(s => s.Name).ToList());
             }
         }
@@ -124,7 +164,6 @@ namespace StarWars.Views
 
         private void ShowPopup(string title, List<string> items)
         {
-            // Create a simple Popup with a List of items
             var popup = new Popup
             {
                 IsLightDismissEnabled = true,
@@ -142,7 +181,6 @@ namespace StarWars.Views
                 BorderThickness = new Thickness(2)
             };
 
-            // Title
             stackPanel.Children.Add(new TextBlock
             {
                 Text = title,
@@ -152,7 +190,6 @@ namespace StarWars.Views
                 Margin = new Thickness(0, 0, 0, 10)
             });
 
-            // Items
             foreach (var item in items)
             {
                 stackPanel.Children.Add(new TextBlock
@@ -163,7 +200,6 @@ namespace StarWars.Views
                 });
             }
 
-            // Close Button
             var closeButton = new Button
             {
                 Content = "Close",
@@ -179,6 +215,49 @@ namespace StarWars.Views
             popup.IsOpen = true;
         }
 
+        private void UpdateNavigationButtons(string next, string previous)
+        {
+            Next.IsEnabled = !string.IsNullOrEmpty(next);
+            Prev.IsEnabled = !string.IsNullOrEmpty(previous);
 
+            Next.Tag = next;
+            Prev.Tag = previous;
+        }
+
+        private async void PreviousPageButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            string previousUrl = button?.Tag?.ToString();
+
+            if (!string.IsNullOrEmpty(previousUrl))
+            {
+                if (_dataType.Equals("people"))
+                {
+                    FetchCharacterData(previousUrl);
+                }
+                else
+                {
+                    FetchPlanetData(previousUrl);
+                }
+            }
+        }
+
+        private async void NextPageButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            string nextUrl = button?.Tag?.ToString();
+
+            if (!string.IsNullOrEmpty(nextUrl))
+            {
+                if (_dataType.Equals("people"))
+                {
+                    FetchCharacterData(nextUrl);
+                }
+                else
+                {
+                    FetchPlanetData(nextUrl);
+                }
+            }
+        }
     }
 }

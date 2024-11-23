@@ -32,7 +32,6 @@ namespace StarWars
             PersonFrame.Navigate(typeof(DataContainer), "people");
             PlanetFrame.Navigate(typeof(DataContainer), "planets");
 
-
         }
 
 

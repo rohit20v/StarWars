@@ -137,7 +137,6 @@
     <Compile Include="Models\Vehicle.cs" />
     <Compile Include="Utils\HttpFetch.cs" />
     <Compile Include="Utils\Yoda.cs" />
-    <Compile Include="ViewModels\CharacterViewModel.cs" />
     <Compile Include="Views\DataContainer.xaml.cs">
       <DependentUpon>DataContainer.xaml</DependentUpon>
     </Compile>
