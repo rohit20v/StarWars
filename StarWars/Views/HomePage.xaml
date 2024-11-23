@@ -17,7 +17,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
 
-            <Grid Grid.Row="0" Margin="16" CornerRadius="24">
+            <Grid Grid.Row="0" Margin="16" CornerRadius="24" Height="42">
                 <Grid.Background>
                     <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                         <LinearGradientBrush.RelativeTransform>
@@ -31,15 +31,7 @@
                     </LinearGradientBrush>
                 </Grid.Background>
 
-                <StackPanel Orientation="Horizontal" Padding="4" Spacing="16" HorizontalAlignment="Center">
-                    <Button Width="80" IsFocusEngagementEnabled="False" CornerRadius="8"
-                            Background="#FF8F7700">
-                        <TextBlock Foreground="Gold" FontWeight="Black" FontSize="16" Text="JSON" CharacterSpacing="69" />
-                    </Button>
-                    <Button Width="80" CornerRadius="8" Background="#FF8F7700">
-                        <TextBlock Foreground="Gold" FontWeight="Black" FontSize="16" Text="XML" CharacterSpacing="69" />
-                    </Button>
-                </StackPanel>
+            
             </Grid>
 
             <StackPanel Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center">

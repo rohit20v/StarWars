@@ -259,5 +259,24 @@ namespace StarWars.Views
                 }
             }
         }
+
+        private void SaveXml(object sender, RoutedEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        private void SaveJson(object sender, RoutedEventArgs e)
+        {
+
+            if (_dataType.Equals("people"))
+            {
+                JsonWriter.WriteJsonFile<Character>(_people, "characters.json");
+            }
+            else if (_dataType.Equals("planets"))
+            {
+                JsonWriter.WriteJsonFile(_planets, "planets.json");
+
+            }
+        }
     }
 }

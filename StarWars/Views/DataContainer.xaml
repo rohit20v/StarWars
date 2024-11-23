@@ -149,11 +149,21 @@
                     CornerRadius="8" />
         </StackPanel>
 
-        <TextBox x:Name="SearchBox" HorizontalAlignment="Center" Width="300" Height="45"
-                 Background="#333333" Foreground="White" FontSize="16" FontWeight="SemiBold" BorderBrush="Yellow"
-                 BorderThickness="2" Padding="10" Margin="10" PlaceholderText="Search the Star Wars galaxy..."
-                 TextAlignment="Center" CornerRadius="8" TextChanged="SearchBox_TextChanged" />
+        <StackPanel Orientation="Horizontal" Padding="4" Spacing="16" HorizontalAlignment="Center">
+            <Button Width="80" IsFocusEngagementEnabled="False" CornerRadius="8"
+                    Background="#FF8F7700" Click="SaveJson">
+                <TextBlock Foreground="Gold" FontWeight="Black" FontSize="16" Text="JSON" CharacterSpacing="69" />
+            </Button>
+            <TextBox x:Name="SearchBox" HorizontalAlignment="Center" Width="300" Height="45"
+                     Background="#333333" Foreground="White" FontSize="16" FontWeight="SemiBold" BorderBrush="Yellow"
+                     BorderThickness="2" Padding="10" Margin="10" PlaceholderText="Search the Star Wars galaxy..."
+                     TextAlignment="Center" CornerRadius="8" TextChanged="SearchBox_TextChanged" />
 
+            <Button Width="80" CornerRadius="8" Background="#FF8F7700" Click="SaveXml">
+                <TextBlock Foreground="Gold" FontWeight="Black" FontSize="16" Text="XML" CharacterSpacing="69" />
+            </Button>
+        </StackPanel>
+       
 
         <ListView Height="300" x:Name="DataList" HorizontalAlignment="Center" />
 
