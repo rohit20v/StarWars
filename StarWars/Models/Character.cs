@@ -15,6 +15,7 @@ namespace StarWars.Models
         public string Skin_Color { get; set; }
         public string Birth_Year { get; set; }
         public string Gender { get; set; }
+        public string homeworld { get; set; }
         [JsonPropertyName("vehicles")] public List<string> VehiclesDataUrl { get; set; }
         [JsonPropertyName("starships")] public List<string> StarshipsDataUrl { get; set; }
        

@@ -45,6 +45,7 @@ namespace StarWars.Views
         {
             _dataType = e.Parameter as string;
             InitialFetch();
+            HomeworldSearchToggle.Visibility = _dataType.Equals("people") ? Visibility.Visible : Visibility.Collapsed;
         }
 
         private void InitialFetch()
@@ -88,16 +89,52 @@ namespace StarWars.Views
             }
         }
 
+
         private async void SearchBox_TextChanged(object sender, TextChangedEventArgs e)
         {
-            string searchText = SearchBox.Text.Trim();
+            string searchText = SearchBox.Text.Trim().ToLower();
 
             if (!string.IsNullOrEmpty(searchText))
             {
                 if (_dataType.Equals("people"))
                 {
-                    string searchUrl = $"https://swapi.dev/api/people/?search={searchText}";
-                    FetchCharacterData(searchUrl);
+                    bool searchByHomeworld = HomeworldSearchToggle.IsOn;
+
+                    if (searchByHomeworld)
+                    {
+                        var allCharacters = new List<Character>();
+                        string url = "https://swapi.dev/api/people/";
+
+                        while (!string.IsNullOrEmpty(url))
+                        {
+                            _characterResponse = HttpFetch.FetchApi<Character>(url);
+                            if (_characterResponse != null && _characterResponse.Results != null)
+                            {
+                                foreach (var character in _characterResponse.Results)
+                                {
+                                    if (!string.IsNullOrEmpty(character.homeworld))
+                                    {
+                                        var planet = await HttpFetch.FetchSingleItemAsync<Planet>(character.homeworld);
+                                        if (planet != null && planet.Name.ToLower().Contains(searchText))
+                                        {
+                                            allCharacters.Add(character);
+                                        }
+                                    }
+                                }
+                            }
+
+                            url = _characterResponse?.Next;
+                        }
+
+                        _people = allCharacters;
+                        DataList.ItemsSource = _people;
+                        UpdateNavigationButtons(null, null);
+                    }
+                    else
+                    {
+                        string searchUrl = $"https://swapi.dev/api/people/?search={searchText}";
+                        FetchCharacterData(searchUrl);
+                    }
                 }
                 else if (_dataType.Equals("planets"))
                 {
@@ -148,7 +185,7 @@ namespace StarWars.Views
                 {
                     try
                     {
-                        var starship = await HttpFetch.FetchSingleItemAsync<Starship>(url); // Use async call
+                        var starship = await HttpFetch.FetchSingleItemAsync<Starship>(url);
                         if (starship != null) starships.Add(starship);
                     }
                     catch (Exception ex)
@@ -160,6 +197,7 @@ namespace StarWars.Views
                 ShowPopup("Starships", starships);
             }
         }
+
         private void ShowPopup<T>(string title, List<T> items)
         {
             var popup = new Popup
@@ -183,19 +221,26 @@ namespace StarWars.Views
             };
 
             semiTransparentBackdrop.Tapped += (s, e) => popup.IsOpen = false;
-            var stackPanel = new StackPanel
+
+            var mainContainer = new Grid
             {
-                Background = new SolidColorBrush(Colors.Black),
-                Padding = new Thickness(20),
-                CornerRadius = new CornerRadius(10),
+                MaxHeight = Window.Current.Bounds.Height * 0.8,
                 MaxWidth = 400,
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center,
+                Background = new SolidColorBrush(Colors.Black),
                 BorderBrush = new SolidColorBrush(Colors.Yellow),
                 BorderThickness = new Thickness(2),
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center
+                CornerRadius = new CornerRadius(10),
+                Padding = new Thickness(20)
             };
 
-            stackPanel.Children.Add(new TextBlock
+            var contentPanel = new StackPanel
+            {
+                Spacing = 10
+            };
+
+            contentPanel.Children.Add(new TextBlock
             {
                 Text = title,
                 FontSize = 18,
@@ -205,9 +250,22 @@ namespace StarWars.Views
                 HorizontalAlignment = HorizontalAlignment.Center
             });
 
+            var scrollViewer = new ScrollViewer
+            {
+                VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+                HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+                Padding = new Thickness(0, 0, 10, 0),
+                MaxHeight = Window.Current.Bounds.Height * 0.6
+            };
+
+            var itemsPanel = new StackPanel
+            {
+                Spacing = 10
+            };
+
             if (items == null || !items.Any())
             {
-                stackPanel.Children.Add(new TextBlock
+                itemsPanel.Children.Add(new TextBlock
                 {
                     Text = "No Data Found",
                     Foreground = new SolidColorBrush(Colors.White),
@@ -222,7 +280,7 @@ namespace StarWars.Views
                     var properties = item.GetType().GetProperties();
                     var itemStack = new StackPanel
                     {
-                        Margin = new Thickness(0, 10, 0, 10),
+                        Margin = new Thickness(0, 5, 0, 5),
                         BorderBrush = new SolidColorBrush(Colors.Yellow),
                         BorderThickness = new Thickness(2),
                         Padding = new Thickness(10),
@@ -237,13 +295,17 @@ namespace StarWars.Views
                         {
                             Text = $"{prop.Name}: {value}",
                             Foreground = new SolidColorBrush(Colors.White),
-                            Margin = new Thickness(0, 2, 0, 2)
+                            Margin = new Thickness(0, 2, 0, 2),
+                            TextWrapping = TextWrapping.Wrap
                         });
                     }
 
-                    stackPanel.Children.Add(itemStack);
+                    itemsPanel.Children.Add(itemStack);
                 }
             }
+
+            scrollViewer.Content = itemsPanel;
+            contentPanel.Children.Add(scrollViewer);
 
             var closeButton = new Button
             {
@@ -259,10 +321,11 @@ namespace StarWars.Views
             };
 
             closeButton.Click += (s, e) => popup.IsOpen = false;
-            stackPanel.Children.Add(closeButton);
+            contentPanel.Children.Add(closeButton);
 
+            mainContainer.Children.Add(contentPanel);
             rootGrid.Children.Add(semiTransparentBackdrop);
-            rootGrid.Children.Add(stackPanel);
+            rootGrid.Children.Add(mainContainer);
 
             popup.Child = rootGrid;
             popup.IsOpen = true;
@@ -334,6 +397,22 @@ namespace StarWars.Views
             else if (_dataType.Equals("planets"))
             {
                 JsonWriter.WriteJsonFile(_planets, "planets.json");
+            }
+        }
+
+        private async void ShowHomeworldButton_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            var homeworldUrl = button?.Tag as string;
+
+            if (!string.IsNullOrEmpty(homeworldUrl))
+            {
+                var planet = await HttpFetch.FetchSingleItemAsync<Planet>(homeworldUrl);
+                if (planet != null)
+                {
+                    var planets = new List<Planet> { planet };
+                    ShowPopup("Homeworld", planets);
+                }
             }
         }
     }
