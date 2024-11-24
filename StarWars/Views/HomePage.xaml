@@ -48,7 +48,7 @@
 
             </Grid>
 
-            <Canvas x:Name="CustomCursorCanvas" />
+            <Canvas x:Name="YodaCursorCanvas" />
         </Grid>
 
     </StackPanel>

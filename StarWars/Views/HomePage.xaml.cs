@@ -28,7 +28,7 @@ namespace StarWars
         public HomePage()
         {
             this.InitializeComponent();
-            _yodaInstance = new Yoda(CustomCursorCanvas);
+            _yodaInstance = new Yoda(YodaCursorCanvas);
             PersonFrame.Navigate(typeof(DataContainer), "people");
             PlanetFrame.Navigate(typeof(DataContainer), "planets");
 

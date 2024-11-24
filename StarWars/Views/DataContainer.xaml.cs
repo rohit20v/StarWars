@@ -132,7 +132,7 @@ namespace StarWars.Views
                     }
                 }
 
-                ShowPopup("Vehicles", vehicles.Select(v => v.Name).ToList());
+                ShowPopup("Vehicles", vehicles);
             }
         }
 
@@ -157,12 +157,10 @@ namespace StarWars.Views
                     }
                 }
 
-                ShowPopup("Starships", starships.Select(s => s.Name).ToList());
+                ShowPopup("Starships", starships);
             }
         }
-
-
-        private void ShowPopup(string title, List<string> items)
+        private void ShowPopup<T>(string title, List<T> items)
         {
             var popup = new Popup
             {
@@ -171,14 +169,30 @@ namespace StarWars.Views
                 VerticalAlignment = VerticalAlignment.Center
             };
 
+            var rootGrid = new Grid
+            {
+                Width = Window.Current.Bounds.Width,
+                Height = Window.Current.Bounds.Height
+            };
+
+            var semiTransparentBackdrop = new Grid
+            {
+                Width = Window.Current.Bounds.Width,
+                Height = Window.Current.Bounds.Height,
+                Background = new SolidColorBrush(Color.FromArgb(128, 0, 0, 0))
+            };
+
+            semiTransparentBackdrop.Tapped += (s, e) => popup.IsOpen = false;
             var stackPanel = new StackPanel
             {
                 Background = new SolidColorBrush(Colors.Black),
                 Padding = new Thickness(20),
                 CornerRadius = new CornerRadius(10),
-                MaxWidth = 300,
+                MaxWidth = 400,
                 BorderBrush = new SolidColorBrush(Colors.Yellow),
-                BorderThickness = new Thickness(2)
+                BorderThickness = new Thickness(2),
+                VerticalAlignment = VerticalAlignment.Center,
+                HorizontalAlignment = HorizontalAlignment.Center
             };
 
             stackPanel.Children.Add(new TextBlock
@@ -187,31 +201,70 @@ namespace StarWars.Views
                 FontSize = 18,
                 FontWeight = FontWeights.Bold,
                 Foreground = new SolidColorBrush(Colors.Yellow),
-                Margin = new Thickness(0, 0, 0, 10)
+                Margin = new Thickness(0, 0, 0, 10),
+                HorizontalAlignment = HorizontalAlignment.Center
             });
 
-            foreach (var item in items)
+            if (items == null || !items.Any())
             {
                 stackPanel.Children.Add(new TextBlock
                 {
-                    Text = "• " + item,
+                    Text = "No Data Found",
                     Foreground = new SolidColorBrush(Colors.White),
-                    Margin = new Thickness(0, 5, 0, 5)
+                    Margin = new Thickness(0, 10, 0, 0),
+                    HorizontalAlignment = HorizontalAlignment.Center
                 });
+            }
+            else
+            {
+                foreach (var item in items)
+                {
+                    var properties = item.GetType().GetProperties();
+                    var itemStack = new StackPanel
+                    {
+                        Margin = new Thickness(0, 10, 0, 10),
+                        BorderBrush = new SolidColorBrush(Colors.Yellow),
+                        BorderThickness = new Thickness(2),
+                        Padding = new Thickness(10),
+                        CornerRadius = new CornerRadius(5)
+                    };
+
+                    foreach (var prop in properties)
+                    {
+                        var value = prop.GetValue(item)?.ToString() ?? "N/A";
+
+                        itemStack.Children.Add(new TextBlock
+                        {
+                            Text = $"{prop.Name}: {value}",
+                            Foreground = new SolidColorBrush(Colors.White),
+                            Margin = new Thickness(0, 2, 0, 2)
+                        });
+                    }
+
+                    stackPanel.Children.Add(itemStack);
+                }
             }
 
             var closeButton = new Button
             {
                 Content = "Close",
-                Background = new SolidColorBrush(Colors.Gray),
+                Background = new SolidColorBrush(Colors.Goldenrod),
                 Foreground = new SolidColorBrush(Colors.White),
-                Margin = new Thickness(0, 10, 0, 0)
+                BorderBrush = new SolidColorBrush(Colors.White),
+                Padding = new Thickness(8),
+                BorderThickness = new Thickness(2),
+                CornerRadius = new CornerRadius(4),
+                Margin = new Thickness(0, 10, 0, 0),
+                HorizontalAlignment = HorizontalAlignment.Center
             };
 
             closeButton.Click += (s, e) => popup.IsOpen = false;
             stackPanel.Children.Add(closeButton);
 
-            popup.Child = stackPanel;
+            rootGrid.Children.Add(semiTransparentBackdrop);
+            rootGrid.Children.Add(stackPanel);
+
+            popup.Child = rootGrid;
             popup.IsOpen = true;
         }
 
@@ -269,13 +322,11 @@ namespace StarWars.Views
             else if (_dataType.Equals("planets"))
             {
                 XmlWriter.WriteXmlFile<Planet>(_planets, "planets.xml");
-
             }
         }
 
         private void SaveJson(object sender, RoutedEventArgs e)
         {
-
             if (_dataType.Equals("people"))
             {
                 JsonWriter.WriteJsonFile<Character>(_people, "characters.json");
@@ -283,7 +334,6 @@ namespace StarWars.Views
             else if (_dataType.Equals("planets"))
             {
                 JsonWriter.WriteJsonFile(_planets, "planets.json");
-
             }
         }
     }
